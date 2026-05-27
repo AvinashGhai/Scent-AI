@@ -5,7 +5,7 @@ import {
   RotateCcw, ShoppingBag, MapPin, ChevronDown, Star
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { perfumes, notesByFamily } from "../data/Perfume";
+import { perfumes, notesByFamily } from "../../data/Perfume";
 
 // ── CONSTANTS ────────────────────────────────────────────────────────
 const LAYER_CONFIG = {
