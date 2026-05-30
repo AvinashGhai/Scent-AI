@@ -8,9 +8,11 @@ import {
 } from "lucide-react";
 import PerfumeCard from "../components/perfume/PerfumeCard";
 import { perfumes } from "../data/Perfume";
+import { getSimilarPerfumes } from "../services/recommendationEngine"
 
 // ── CONSTANTS ────────────────────────────────────────────────────────
 const SEASON_EMOJI = { spring: "🌸", summer: "☀️", fall: "🍂", winter: "❄️" };
+
 
 const LONGEVITY_STEPS = [
   "weak", "moderate", "moderate-long lasting", "long lasting",
@@ -216,7 +218,7 @@ export default function PerfumePage() {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const perfume = perfumes.find((p) => p.id === Number(id));
-  const similar = perfume ? getSimilar(perfume) : [];
+  const similar = getSimilarPerfumes(perfume, 4);
 
   // Scroll to top on load
   useEffect(() => { window.scrollTo(0, 0); }, [id]);

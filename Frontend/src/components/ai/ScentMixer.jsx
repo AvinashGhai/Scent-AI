@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { perfumes, notesByFamily } from "../../data/Perfume";
+import { getRecommendations } from "../../services/recommendationEngine"
 
 // ── CONSTANTS ────────────────────────────────────────────────────────
 const LAYER_CONFIG = {
@@ -464,7 +465,7 @@ export default function ScentMixer() {
 
   function handleMixDone() {
     setMixing(false);
-    const result = getMatches(notes);
+    const result = getRecommendations(notes, {}, 3);
     setMatches(result);
     setTimeout(() => {
       resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
