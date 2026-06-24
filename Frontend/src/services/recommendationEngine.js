@@ -1,8 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────
-// recommendationEngine.js
-// ScentAI — Core Recommendation & Scoring Logic
-// No external dependencies — pure JS, works with your Perfume.js data
-// ─────────────────────────────────────────────────────────────────────
 
 import { perfumes } from "../data/Perfume";
 

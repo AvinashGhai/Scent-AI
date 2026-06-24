@@ -1,8 +1,7 @@
-// backend/src/controllers/aiController.js
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const MODEL = "gemini-1.5-flash";
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const MODEL = "llama-3.3-70b-versatile";
 
 function safeJSON(text) {
   const clean = text.replace(/```json|```/g, "").trim();
@@ -10,15 +9,13 @@ function safeJSON(text) {
   catch { return null; }
 }
 
-// ── CHAT ─────────────────────────────────────────────────────────────
+// ── CHAT ──────────────────────────────────────────────────────────────
 exports.chat = async (req, res) => {
   try {
     const { message, history = [], perfumeData = [] } = req.body;
     if (!message) return res.status(400).json({ error: "Message is required" });
 
-    const model = genAI.getGenerativeModel({
-      model: MODEL,
-      systemInstruction: `You are ScentAI, a friendly fragrance assistant.
+    const systemPrompt = `You are ScentAI, a friendly fragrance assistant.
 You help users discover perfumes based on mood, occasion, and notes.
 
 Perfume database (ONLY recommend from this list, never invent names):
@@ -36,24 +33,29 @@ Rules:
 - If nothing matches, say so honestly.
 - Keep replies to 2-4 sentences.
 - Be warm and slightly poetic.
-- Always mention perfume name, brand, and one key reason when recommending.`
+- Always mention perfume name, brand, and one key reason when recommending.`;
+
+    const messages = [
+      { role: "system", content: systemPrompt },
+      ...history.map((h) => ({
+        role: h.role === "assistant" ? "assistant" : "user",
+        content: h.content,
+      })),
+      { role: "user", content: message },
+    ];
+
+    const completion = await groq.chat.completions.create({
+      model: MODEL,
+      messages,
+      max_tokens: 512,
     });
 
-    // Convert history to Gemini format
-    const chatHistory = history.map((h) => ({
-      role: h.role === "assistant" ? "model" : "user",
-      parts: [{ text: h.content }],
-    }));
-
-    const chat = model.startChat({ history: chatHistory });
-    const result = await chat.sendMessage(message);
-    const reply = result.response.text();
-
+    const reply = completion.choices[0].message.content;
     res.json({ reply });
 
   } catch (err) {
     console.error("Chat error:", err.message);
-    res.status(500).json({ error: "Chat failed. Check GEMINI_API_KEY in .env" });
+    res.status(500).json({ error: "Chat failed. Check GROQ_API_KEY in .env" });
   }
 };
 
@@ -94,9 +96,13 @@ Reply ONLY in this exact JSON, no extra text:
   ]
 }`;
 
-    const model = genAI.getGenerativeModel({ model: MODEL });
-    const result = await model.generateContent(prompt);
-    const raw = result.response.text();
+    const completion = await groq.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 512,
+    });
+
+    const raw = completion.choices[0].message.content;
     const parsed = safeJSON(raw);
     res.json({ explanations: parsed?.explanations ?? [] });
 
@@ -134,9 +140,13 @@ Reply ONLY in this exact JSON:
   ]
 }`;
 
-    const model = genAI.getGenerativeModel({ model: MODEL });
-    const result = await model.generateContent(prompt);
-    const raw = result.response.text();
+    const completion = await groq.chat.completions.create({
+      model: MODEL,
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 512,
+    });
+
+    const raw = completion.choices[0].message.content;
     const parsed = safeJSON(raw);
     res.json({ suggestions: parsed?.suggestions ?? [] });
 

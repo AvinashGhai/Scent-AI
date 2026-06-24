@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { chatWithAssistant } from "../../services/aiService";
-import { perfumes } from "../../data/Perfume";
+import { useApp } from "../../context/AppContext";
 
 const SUGGESTIONS = [
   "Suggest a sweet winter perfume for parties 🎉",
@@ -84,6 +84,7 @@ export function AIAssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { perfumes } = useApp();
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -278,6 +279,7 @@ export function AIAssistantWidget() {
   }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const { perfumes } = useApp();
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
