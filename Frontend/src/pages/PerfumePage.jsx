@@ -3,16 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft, Star, Heart, Share2, ShoppingBag,
-  MapPin, Droplets, Wind, Flame, Sparkles,
+  Droplets, Sparkles,
   Clock, Volume2, ChevronRight
 } from "lucide-react";
 import PerfumeCard from "../components/perfume/PerfumeCard";
 import { perfumes } from "../data/Perfume";
 import { getSimilarPerfumes } from "../services/recommendationEngine"
 
-// ── CONSTANTS ────────────────────────────────────────────────────────
 const SEASON_EMOJI = { spring: "🌸", summer: "☀️", fall: "🍂", winter: "❄️" };
-
 
 const LONGEVITY_STEPS = [
   "weak", "moderate", "moderate-long lasting", "long lasting",
@@ -68,7 +66,6 @@ const PRICE_LABEL = {
   "designer-luxury": "₹₹₹₹ Elite",
 };
 
-// ── HELPERS ──────────────────────────────────────────────────────────
 function ScaleBar({ steps, value, color }) {
   const idx = steps.findIndex((s) => s === value);
   const pct = idx === -1 ? 0 : Math.round(((idx + 1) / steps.length) * 100);
@@ -91,7 +88,6 @@ function ScaleBar({ steps, value, color }) {
   );
 }
 
-// ── ANIMATED SCENT PYRAMID ───────────────────────────────────────────
 function ScentPyramid({ topNotes, middleNotes, baseNotes }) {
   const [activeLayer, setActiveLayer] = useState(null);
   const layers = [
@@ -102,7 +98,6 @@ function ScentPyramid({ topNotes, middleNotes, baseNotes }) {
 
   return (
     <div className="space-y-2">
-      {/* Pyramid visual */}
       <div className="flex flex-col items-center gap-0 mb-6">
         {layers.map((layer, li) => (
           <motion.div
@@ -130,7 +125,6 @@ function ScentPyramid({ topNotes, middleNotes, baseNotes }) {
         ))}
       </div>
 
-      {/* Layer detail on click */}
       <AnimatePresence>
         {activeLayer && (() => {
           const layer = layers.find((l) => l.key === activeLayer);
@@ -166,7 +160,6 @@ function ScentPyramid({ topNotes, middleNotes, baseNotes }) {
   );
 }
 
-// ── ACCORD BAR ───────────────────────────────────────────────────────
 function AccordBars({ accords }) {
   return (
     <div className="space-y-2">
@@ -191,36 +184,17 @@ function AccordBars({ accords }) {
   );
 }
 
-// ── SIMILAR PERFUMES ─────────────────────────────────────────────────
-function getSimilar(perfume) {
-  return perfumes
-    .filter((p) => p.id !== perfume.id)
-    .map((p) => {
-      let score = 0;
-      const allNotes = [...perfume.topNotes, ...perfume.middleNotes, ...perfume.baseNotes];
-      const pNotes = [...p.topNotes, ...p.middleNotes, ...p.baseNotes];
-      score += pNotes.filter((n) => allNotes.includes(n)).length * 3;
-      score += p.accords.filter((a) => perfume.accords.includes(a)).length * 2;
-      score += p.vibe.filter((v) => perfume.vibe.includes(v)).length;
-      if (p.gender === perfume.gender) score += 1;
-      return { ...p, score };
-    })
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 4);
-}
-
-// ── MAIN PAGE ────────────────────────────────────────────────────────
 export default function PerfumePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [wishlisted, setWishlisted] = useState(false);
-  const [activeTab, setActiveTab] = useState("notes"); // "notes" | "accords" | "profile"
+  const [activeTab, setActiveTab] = useState("notes");
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const perfume = perfumes.find((p) => p.id === Number(id));
   const similar = getSimilarPerfumes(perfume, 4);
 
-  // Scroll to top on load
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
 
   if (!perfume) {
@@ -238,6 +212,20 @@ export default function PerfumePage() {
   const buyUrl = `https://www.amazon.in/s?k=${encodeURIComponent(perfume.name + " " + perfume.brand)}`;
   const sephUrl = `https://www.sephora.com/search?keyword=${encodeURIComponent(perfume.name)}`;
 
+  function handleShare() {
+    if (navigator.share) {
+      navigator.share({
+        title: perfume.name,
+        text: `Check out ${perfume.name} by ${perfume.brand} on ScentAI`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
   return (
     <div
       className="min-h-screen bg-zinc-950 text-white"
@@ -251,15 +239,12 @@ export default function PerfumePage() {
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 2px; }
       `}</style>
 
-      {/* ── HERO SECTION ── */}
       <div className="relative min-h-[70vh] flex flex-col">
-        {/* Ambient glow based on accords */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-amber-900/10 blur-3xl" />
           <div className="absolute bottom-0 left-1/4 w-80 h-80 rounded-full bg-rose-900/8 blur-3xl" />
         </div>
 
-        {/* Back button */}
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -271,10 +256,17 @@ export default function PerfumePage() {
           Back
         </motion.button>
 
-        {/* Action buttons */}
         <div className="absolute top-6 right-6 z-10 flex items-center gap-2">
-          <button className="p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 backdrop-blur-sm text-zinc-500 hover:text-zinc-300 transition-all">
+          <button
+            onClick={handleShare}
+            className="relative p-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 backdrop-blur-sm text-zinc-500 hover:text-zinc-300 transition-all"
+          >
             <Share2 size={14} />
+            {copied && (
+              <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 font-sans text-[10px] text-green-400 whitespace-nowrap bg-zinc-900 px-2 py-1 rounded-lg border border-zinc-800">
+                Copied!
+              </span>
+            )}
           </button>
           <button
             onClick={() => setWishlisted(!wishlisted)}
@@ -288,10 +280,7 @@ export default function PerfumePage() {
           </button>
         </div>
 
-        {/* Hero content */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-12 flex-1 px-6 md:px-16 pt-20 pb-12">
-
-          {/* Perfume image */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -299,16 +288,13 @@ export default function PerfumePage() {
             className="relative shrink-0"
           >
             <div className="relative w-56 h-72 flex items-center justify-center">
-              {/* Glow ring */}
               <div className="absolute inset-0 rounded-full bg-amber-900/20 blur-2xl scale-75" />
               {perfume.image ? (
                 <motion.img
                   src={perfume.image}
                   alt={perfume.name}
                   onLoad={() => setImageLoaded(true)}
-                  animate={imageLoaded ? {
-                    y: [0, -10, 0],
-                  } : {}}
+                  animate={imageLoaded ? { y: [0, -10, 0] } : {}}
                   transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                   className="relative z-10 h-64 w-auto object-contain drop-shadow-2xl"
                 />
@@ -321,18 +307,14 @@ export default function PerfumePage() {
             </div>
           </motion.div>
 
-          {/* Info */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
             className="max-w-lg"
           >
-            {/* Brand + type */}
             <div className="flex items-center gap-3 mb-3">
-              <span className="font-sans text-xs tracking-widest text-amber-500/70 uppercase">
-                {perfume.brand}
-              </span>
+              <span className="font-sans text-xs tracking-widest text-amber-500/70 uppercase">{perfume.brand}</span>
               <span className="w-1 h-1 rounded-full bg-zinc-700" />
               <span className="font-sans text-xs text-zinc-600">{perfume.type}</span>
               <span className="w-1 h-1 rounded-full bg-zinc-700" />
@@ -345,12 +327,8 @@ export default function PerfumePage() {
               )}
             </div>
 
-            {/* Name */}
-            <h1 className="text-5xl md:text-6xl font-light leading-tight mb-4">
-              {perfume.name}
-            </h1>
+            <h1 className="text-5xl md:text-6xl font-light leading-tight mb-4">{perfume.name}</h1>
 
-            {/* Rating row */}
             <div className="flex items-center gap-4 mb-6">
               <div className="flex items-center gap-1.5">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -362,17 +340,12 @@ export default function PerfumePage() {
                 ))}
                 <span className="font-sans text-sm text-amber-300 ml-1">{perfume.rating}</span>
               </div>
-              <span className="font-sans text-xs text-zinc-600">
-                {perfume.totalVotes.toLocaleString()} ratings
-              </span>
+              <span className="font-sans text-xs text-zinc-600">{perfume.totalVotes.toLocaleString()} ratings</span>
               {perfume.reviews > 0 && (
-                <span className="font-sans text-xs text-zinc-600">
-                  · {perfume.reviews.toLocaleString()} reviews
-                </span>
+                <span className="font-sans text-xs text-zinc-600">· {perfume.reviews.toLocaleString()} reviews</span>
               )}
             </div>
 
-            {/* Vibe tags */}
             <div className="flex flex-wrap gap-2 mb-6">
               {perfume.vibe.map((v) => (
                 <span key={v} className="px-3 py-1 rounded-full text-xs font-sans bg-zinc-900 border border-zinc-800 text-zinc-400 capitalize">
@@ -381,33 +354,24 @@ export default function PerfumePage() {
               ))}
             </div>
 
-            {/* Best for */}
             <div className="flex flex-wrap gap-3 mb-8">
               <div className="flex items-center gap-1.5">
                 <Clock size={12} className="text-zinc-600" />
-                <span className="font-sans text-xs text-zinc-500">
-                  {perfume.bestFor.time.join(", ")}
-                </span>
+                <span className="font-sans text-xs text-zinc-500">{perfume.bestFor.time.join(", ")}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 {perfume.bestFor.seasons.map((s) => (
-                  <span key={s} className="font-sans text-xs text-zinc-500">
-                    {SEASON_EMOJI[s]}
-                  </span>
+                  <span key={s} className="font-sans text-xs text-zinc-500">{SEASON_EMOJI[s]}</span>
                 ))}
-                <span className="font-sans text-xs text-zinc-500 capitalize">
-                  {perfume.bestFor.seasons.join(", ")}
-                </span>
+                <span className="font-sans text-xs text-zinc-500 capitalize">{perfume.bestFor.seasons.join(", ")}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <MapPin size={12} className="text-zinc-600" />
                 <span className="font-sans text-xs text-zinc-500 capitalize">
                   {perfume.bestFor.occasions.slice(0, 2).join(", ")}
                 </span>
               </div>
             </div>
 
-            {/* Price + CTA */}
             <div className="flex items-center gap-3">
               <a
                 href={buyUrl}
@@ -418,6 +382,7 @@ export default function PerfumePage() {
                 <ShoppingBag size={14} />
                 Buy on Amazon
               </a>
+
               <a
                 href={sephUrl}
                 target="_blank"
@@ -426,19 +391,11 @@ export default function PerfumePage() {
               >
                 Sephora
               </a>
-              <button
-                onClick={() => navigate("/stores?q=" + encodeURIComponent(perfume.name))}
-                className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-zinc-800 text-zinc-500 font-sans text-sm hover:text-zinc-300 hover:border-zinc-700 transition-all"
-              >
-                <MapPin size={14} />
-                Nearby
-              </button>
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* ── TABS ── */}
       <div className="sticky top-0 z-30 bg-zinc-950/90 backdrop-blur-md border-y border-zinc-900 px-6 md:px-16">
         <div className="flex gap-6">
           {["notes", "accords", "profile"].map((tab) => (
@@ -451,20 +408,15 @@ export default function PerfumePage() {
             >
               {tab}
               {activeTab === tab && (
-                <motion.div
-                  layoutId="tab-indicator"
-                  className="absolute bottom-0 inset-x-0 h-px bg-amber-400"
-                />
+                <motion.div layoutId="tab-indicator" className="absolute bottom-0 inset-x-0 h-px bg-amber-400" />
               )}
             </button>
           ))}
         </div>
       </div>
 
-      {/* ── TAB CONTENT ── */}
       <div className="px-6 md:px-16 py-12">
         <AnimatePresence mode="wait">
-          {/* NOTES TAB */}
           {activeTab === "notes" && (
             <motion.div
               key="notes"
@@ -475,20 +427,12 @@ export default function PerfumePage() {
               className="grid md:grid-cols-2 gap-12"
             >
               <div>
-                <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">
-                  Fragrance Pyramid
-                </p>
+                <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">Fragrance Pyramid</p>
                 <h2 className="text-3xl font-light mb-8">The Notes</h2>
-                <ScentPyramid
-                  topNotes={perfume.topNotes}
-                  middleNotes={perfume.middleNotes}
-                  baseNotes={perfume.baseNotes}
-                />
+                <ScentPyramid topNotes={perfume.topNotes} middleNotes={perfume.middleNotes} baseNotes={perfume.baseNotes} />
               </div>
               <div>
-                <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">
-                  Performance
-                </p>
+                <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">Performance</p>
                 <h2 className="text-3xl font-light mb-8">How It Wears</h2>
                 <div className="space-y-6">
                   <div>
@@ -524,7 +468,6 @@ export default function PerfumePage() {
             </motion.div>
           )}
 
-          {/* ACCORDS TAB */}
           {activeTab === "accords" && (
             <motion.div
               key="accords"
@@ -534,15 +477,12 @@ export default function PerfumePage() {
               transition={{ duration: 0.25 }}
               className="max-w-lg"
             >
-              <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">
-                Scent Character
-              </p>
+              <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">Scent Character</p>
               <h2 className="text-3xl font-light mb-8">Main Accords</h2>
               <AccordBars accords={perfume.accords} />
             </motion.div>
           )}
 
-          {/* PROFILE TAB */}
           {activeTab === "profile" && (
             <motion.div
               key="profile"
@@ -604,14 +544,11 @@ export default function PerfumePage() {
         </AnimatePresence>
       </div>
 
-      {/* ── SIMILAR PERFUMES ── */}
       {similar.length > 0 && (
         <section className="px-6 md:px-16 py-12 border-t border-zinc-900">
           <div className="flex items-end justify-between mb-8">
             <div>
-              <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">
-                You May Also Like
-              </p>
+              <p className="font-sans text-xs tracking-widest text-amber-500/70 uppercase mb-2">You May Also Like</p>
               <h2 className="text-3xl font-light">Similar Fragrances</h2>
             </div>
             <button
@@ -623,18 +560,12 @@ export default function PerfumePage() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {similar.map((p, i) => (
-              <PerfumeCard
-                key={p.id}
-                perfume={p}
-                index={i}
-                onClick={() => navigate(`/perfume/${p.id}`)}
-              />
+              <PerfumeCard key={p.id} perfume={p} index={i} onClick={() => navigate(`/perfume/${p.id}`)} />
             ))}
           </div>
         </section>
       )}
 
-      {/* ── FOOTER ── */}
       <footer className="px-6 md:px-16 py-8 border-t border-zinc-900 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Droplets size={14} className="text-amber-400" />

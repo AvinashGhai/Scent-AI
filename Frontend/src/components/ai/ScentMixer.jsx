@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Droplets, Sparkles, X, Plus, ArrowRight,
-  RotateCcw, ShoppingBag, MapPin, ChevronDown, Star
+  RotateCcw, ShoppingBag, ChevronDown, Star
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { perfumes, notesByFamily } from "../../data/Perfume";
@@ -371,13 +371,6 @@ function MatchCard({ perfume, rank, index }) {
               <ShoppingBag size={10} />
               Buy
             </a>
-            <button
-              onClick={() => navigate(`/stores?q=${encodeURIComponent(perfume.name)}`)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-zinc-800 text-zinc-500 font-sans text-xs hover:text-zinc-300 hover:border-zinc-700 transition-all"
-            >
-              <MapPin size={10} />
-              Nearby
-            </button>
           </div>
         </div>
       </div>
