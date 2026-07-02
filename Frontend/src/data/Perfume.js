@@ -1,6 +1,3 @@
-// Perfume.js
-// ScentAI - Complete Normalized Perfume Dataset
-// All objects follow the same structure
 
 export const perfumes = [
   {

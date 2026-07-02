@@ -4,5 +4,6 @@ const perfumeController = require("../controllers/perfumeController");
 
 router.get("/", perfumeController.getAll);
 router.get("/search", perfumeController.search);
+router.post("/semantic-search", perfumeController.semanticSearch);
 
 module.exports = router;
