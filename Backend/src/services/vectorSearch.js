@@ -1,8 +1,6 @@
 const Perfume = require("../models/Perfume");
 
-/**
- * Given a query embedding, find the top-k most semantically similar perfumes.
- */
+
 async function findSimilarPerfumes(queryEmbedding, limit = 5) {
   const results = await Perfume.aggregate([
     {

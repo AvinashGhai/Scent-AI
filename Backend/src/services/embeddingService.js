@@ -17,13 +17,7 @@ async function getEmbedding(text) {
   }
 }
 
-/**
- * Builds embedding text with season/occasion/vibe weighted more heavily.
- * Previously all fields were mentioned once, so "smoky" in accords could
- * outweigh an explicit "summer" season tag. Now context (when/where to wear
- * it) is stated up front AND repeated, so it carries proportionally more
- * signal in the resulting vector.
- */
+
 function buildPerfumeEmbeddingText(perfume) {
   const {
     name, brand, gender, type,
@@ -36,7 +30,6 @@ function buildPerfumeEmbeddingText(perfume) {
   const contextLine = `This is a ${seasons.join("/")} fragrance, best worn during ${time.join("/")} for ${occasions.join(", ")}. It feels ${vibe.join(", ")}.`;
 
   return [
-    // Context stated first AND repeated at the end = weighted ~2x vs a single mention
     contextLine,
     `${name} by ${brand}, a ${gender} ${type}.`,
     `Top notes: ${topNotes.join(", ")}.`,
@@ -44,7 +37,7 @@ function buildPerfumeEmbeddingText(perfume) {
     `Base notes: ${baseNotes.join(", ")}.`,
     `Accords: ${accords.join(", ")}.`,
     `Longevity: ${longevity}. Sillage: ${sillage}. Price category: ${priceCategory}.`,
-    contextLine, // repeated deliberately
+    contextLine, 
   ].join(" ");
 }
 

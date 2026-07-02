@@ -7,8 +7,7 @@ async function run() {
   await mongoose.connect(process.env.MONGO_URI);
   console.log("Connected to MongoDB Atlas");
 
-  // Changed: no longer filters by { embedding: { $exists: false } } —
-  // we want to REGENERATE all embeddings with the new weighted text.
+ 
   const perfumes = await Perfume.find({});
   console.log(`Re-embedding ${perfumes.length} perfumes with updated weighting`);
 
