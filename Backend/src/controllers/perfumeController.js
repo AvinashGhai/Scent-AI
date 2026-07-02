@@ -1,6 +1,7 @@
 const Perfume = require("../models/Perfume");
 const { getEmbedding } = require("../services/embeddingService");
 const { findSimilarPerfumes } = require("../services/vectorSearch");
+const { explainRecommendations } = require("../services/ragService");
 
 exports.getAll = async (req, res) => {
   try {
@@ -37,12 +38,6 @@ exports.search = async (req, res) => {
   }
 };
 
-/**
- * POST /api/perfumes/semantic-search
- * Body: { query: "something smoky for winter nights", limit: 5 }
- * Semantic search using embeddings + MongoDB Atlas Vector Search —
- * understands meaning, not just keyword matches.
- */
 exports.semanticSearch = async (req, res) => {
   try {
     const { query, limit } = req.body;
@@ -62,5 +57,35 @@ exports.semanticSearch = async (req, res) => {
   } catch (err) {
     console.error("Semantic search error:", err.message);
     res.status(500).json({ error: "Semantic search failed" });
+  }
+};
+
+exports.smartRecommend = async (req, res) => {
+  try {
+    const { query, limit } = req.body;
+
+    if (!query || typeof query !== "string" || !query.trim()) {
+      return res.status(400).json({ error: "Query text is required" });
+    }
+
+    const queryEmbedding = await getEmbedding(query);
+    const perfumes = await findSimilarPerfumes(queryEmbedding, limit || 5);
+    const explanations = await explainRecommendations(query, perfumes);
+
+    const merged = perfumes.map((p) => {
+      const match = explanations.find(
+        (e) => e.name === p.name || e.name.includes(p.name) || p.name.includes(e.name)
+      );
+      return { ...p, explanation: match ? match.explanation : null };
+    });
+
+    res.status(200).json({
+      query,
+      count: merged.length,
+      results: merged,
+    });
+  } catch (err) {
+    console.error("Smart recommend error:", err.message);
+    res.status(500).json({ error: "Smart recommendation failed" });
   }
 };
