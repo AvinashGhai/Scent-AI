@@ -5,6 +5,7 @@ import PerfumePage from "./pages/PerfumePage"
 import ScentMixer from "./components/ai/ScentMixer"
 import { AIAssistantPage } from "./components/ai/AIAssistant"
 import { AIAssistantWidget } from "../src/components/ai/AIAssistant"
+import AIRecommendationBox from "./components/ai/AIRecommendationBox"
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/perfume/:id" element={<PerfumePage />} />
         <Route path="/mix" element={<ScentMixer />} />
         <Route path="/assistant" element={<AIAssistantPage />} />
+        <Route path="/smart-search" element={<AIRecommendationBox />} />
       </Routes>
     </BrowserRouter>
   )

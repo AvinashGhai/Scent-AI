@@ -49,13 +49,7 @@ function maxPossibleScore(userNotes, filters = {}) {
 }
 
 // ── CORE SCORER ──────────────────────────────────────────────────────
-/**
- * Score a single perfume against user input.
- * Returns { rawScore, matchPercent, breakdown }
- *
- * userNotes: { top: [], middle: [], base: [] }
- * filters:   { vibes: [], seasons: [], occasions: [], gender: "" }
- */
+
 function scorePerfume(perfume, userNotes = {}, filters = {}) {
   const breakdown = {
     topNoteMatches:    [],

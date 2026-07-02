@@ -1,12 +1,26 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search, SlidersHorizontal, X, ChevronDown,
-  Grid3X3, List, Sparkles, Droplets, Star
+  Search,
+  SlidersHorizontal,
+  X,
+  ChevronDown,
+  Grid3X3,
+  List,
+  Sparkles,
+  Droplets,
+  Star,
 } from "lucide-react";
 import PerfumeCard from "../components/perfume/PerfumeCard";
 import { useNavigate } from "react-router-dom";
-import { notesByFamily, moods, occasions, seasons, genders, priceCategories } from "../data/Perfume";
+import {
+  notesByFamily,
+  moods,
+  occasions,
+  seasons,
+  genders,
+  priceCategories,
+} from "../data/Perfume";
 import { useApp } from "../context/AppContext";
 
 // ── CONSTANTS ────────────────────────────────────────────────────────
@@ -57,8 +71,13 @@ function SectionToggle({ title, children }) {
         onClick={() => setOpen(!open)}
         className="flex items-center justify-between w-full mb-3"
       >
-        <span className="font-sans text-xs tracking-widest text-zinc-400 uppercase">{title}</span>
-        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+        <span className="font-sans text-xs tracking-widest text-zinc-400 uppercase">
+          {title}
+        </span>
+        <motion.div
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
           <ChevronDown size={14} className="text-zinc-600" />
         </motion.div>
       </button>
@@ -92,7 +111,7 @@ function MultiChip({ options, active, onToggle, labelMap }) {
               : "border-zinc-800 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300"
           }`}
         >
-          {labelMap ? labelMap[opt] ?? opt : opt}
+          {labelMap ? (labelMap[opt] ?? opt) : opt}
         </button>
       ))}
     </div>
@@ -105,7 +124,9 @@ function FilterSidebar({ filters, onChange, onReset, totalResults, perfumes }) {
     const current = filters[key];
     onChange(
       key,
-      current.includes(val) ? current.filter((v) => v !== val) : [...current, val]
+      current.includes(val)
+        ? current.filter((v) => v !== val)
+        : [...current, val],
     );
   }
 
@@ -117,9 +138,14 @@ function FilterSidebar({ filters, onChange, onReset, totalResults, perfumes }) {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <SlidersHorizontal size={14} className="text-amber-400" />
-            <span className="font-sans text-sm text-white font-medium">Filters</span>
+            <span className="font-sans text-sm text-white font-medium">
+              Filters
+            </span>
           </div>
-          <button onClick={onReset} className="font-sans text-xs text-zinc-500 hover:text-amber-400 transition-colors">
+          <button
+            onClick={onReset}
+            className="font-sans text-xs text-zinc-500 hover:text-amber-400 transition-colors"
+          >
             Reset all
           </button>
         </div>
@@ -129,7 +155,11 @@ function FilterSidebar({ filters, onChange, onReset, totalResults, perfumes }) {
         </p>
 
         <SectionToggle title="Gender">
-          <MultiChip options={genders} active={filters.gender} onToggle={(v) => toggle("gender", v)} />
+          <MultiChip
+            options={genders}
+            active={filters.gender}
+            onToggle={(v) => toggle("gender", v)}
+          />
         </SectionToggle>
 
         <SectionToggle title="Season">
@@ -137,25 +167,45 @@ function FilterSidebar({ filters, onChange, onReset, totalResults, perfumes }) {
             options={seasons}
             active={filters.seasons}
             onToggle={(v) => toggle("seasons", v)}
-            labelMap={Object.fromEntries(seasons.map((s) => [s, `${SEASON_EMOJI[s]} ${s}`]))}
+            labelMap={Object.fromEntries(
+              seasons.map((s) => [s, `${SEASON_EMOJI[s]} ${s}`]),
+            )}
           />
         </SectionToggle>
 
         <SectionToggle title="Occasion">
-          <MultiChip options={occasions} active={filters.occasions} onToggle={(v) => toggle("occasions", v)} />
+          <MultiChip
+            options={occasions}
+            active={filters.occasions}
+            onToggle={(v) => toggle("occasions", v)}
+          />
         </SectionToggle>
 
         <SectionToggle title="Vibe">
-          <MultiChip options={moods} active={filters.vibes} onToggle={(v) => toggle("vibes", v)} />
+          <MultiChip
+            options={moods}
+            active={filters.vibes}
+            onToggle={(v) => toggle("vibes", v)}
+          />
         </SectionToggle>
 
         <SectionToggle title="Price Range">
-          <MultiChip options={priceCategories} active={filters.price} onToggle={(v) => toggle("price", v)} labelMap={PRICE_LABEL} />
+          <MultiChip
+            options={priceCategories}
+            active={filters.price}
+            onToggle={(v) => toggle("price", v)}
+            labelMap={PRICE_LABEL}
+          />
         </SectionToggle>
 
         <SectionToggle title="Longevity">
           <MultiChip
-            options={["moderate", "long lasting", "moderate-long lasting", "eternal"]}
+            options={[
+              "moderate",
+              "long lasting",
+              "moderate-long lasting",
+              "eternal",
+            ]}
             active={filters.longevity}
             onToggle={(v) => toggle("longevity", v)}
           />
@@ -168,7 +218,9 @@ function FilterSidebar({ filters, onChange, onReset, totalResults, perfumes }) {
                 key={brand}
                 onClick={() => toggle("brands", brand)}
                 className={`text-left px-2 py-1 rounded-lg text-xs font-sans transition-all ${
-                  filters.brands.includes(brand) ? "bg-amber-500/15 text-amber-300" : "text-zinc-500 hover:text-zinc-300"
+                  filters.brands.includes(brand)
+                    ? "bg-amber-500/15 text-amber-300"
+                    : "text-zinc-500 hover:text-zinc-300"
                 }`}
               >
                 {brand}
@@ -180,7 +232,9 @@ function FilterSidebar({ filters, onChange, onReset, totalResults, perfumes }) {
         <SectionToggle title="Notes">
           {Object.entries(notesByFamily).map(([family, notes]) => (
             <div key={family} className="mb-3">
-              <p className="font-sans text-[10px] text-zinc-600 uppercase tracking-widest mb-1.5 capitalize">{family}</p>
+              <p className="font-sans text-[10px] text-zinc-600 uppercase tracking-widest mb-1.5 capitalize">
+                {family}
+              </p>
               <div className="flex flex-wrap gap-1">
                 {notes.slice(0, 6).map((note) => (
                   <button
@@ -225,11 +279,12 @@ export default function Discover() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
 
-  if (loading) return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500 font-sans">
-      Loading fragrances...
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500 font-sans">
+        Loading fragrances...
+      </div>
+    );
 
   function updateFilter(key, val) {
     setFilters((prev) => ({ ...prev, [key]: val }));
@@ -242,17 +297,28 @@ export default function Discover() {
 
   const activeChips = [
     ...filters.gender.map((v) => ({ key: "gender", val: v, label: v })),
-    ...filters.seasons.map((v) => ({ key: "seasons", val: v, label: `${SEASON_EMOJI[v]} ${v}` })),
+    ...filters.seasons.map((v) => ({
+      key: "seasons",
+      val: v,
+      label: `${SEASON_EMOJI[v]} ${v}`,
+    })),
     ...filters.occasions.map((v) => ({ key: "occasions", val: v, label: v })),
     ...filters.vibes.map((v) => ({ key: "vibes", val: v, label: v })),
-    ...filters.price.map((v) => ({ key: "price", val: v, label: PRICE_LABEL[v] ?? v })),
+    ...filters.price.map((v) => ({
+      key: "price",
+      val: v,
+      label: PRICE_LABEL[v] ?? v,
+    })),
     ...filters.longevity.map((v) => ({ key: "longevity", val: v, label: v })),
     ...filters.brands.map((v) => ({ key: "brands", val: v, label: v })),
     ...filters.notes.map((v) => ({ key: "notes", val: v, label: v })),
   ];
 
   function removeChip(key, val) {
-    setFilters((prev) => ({ ...prev, [key]: prev[key].filter((v) => v !== val) }));
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key].filter((v) => v !== val),
+    }));
   }
 
   const results = useMemo(() => {
@@ -262,16 +328,34 @@ export default function Discover() {
         const inName = p.name.toLowerCase().includes(q);
         const inBrand = p.brand.toLowerCase().includes(q);
         const inAccords = p.accords.some((a) => a.toLowerCase().includes(q));
-        const inNotes = [...p.topNotes, ...p.middleNotes, ...p.baseNotes].some((n) => n.toLowerCase().includes(q));
+        const inNotes = [...p.topNotes, ...p.middleNotes, ...p.baseNotes].some(
+          (n) => n.toLowerCase().includes(q),
+        );
         if (!inName && !inBrand && !inAccords && !inNotes) return false;
       }
-      if (filters.gender.length && !filters.gender.includes(p.gender)) return false;
-      if (filters.seasons.length && !filters.seasons.some((s) => p.bestFor.seasons.includes(s))) return false;
-      if (filters.occasions.length && !filters.occasions.some((o) => p.bestFor.occasions.includes(o))) return false;
-      if (filters.vibes.length && !filters.vibes.some((v) => p.vibe.includes(v))) return false;
-      if (filters.price.length && !filters.price.includes(p.priceCategory)) return false;
-      if (filters.longevity.length && !filters.longevity.includes(p.longevity)) return false;
-      if (filters.brands.length && !filters.brands.includes(p.brand)) return false;
+      if (filters.gender.length && !filters.gender.includes(p.gender))
+        return false;
+      if (
+        filters.seasons.length &&
+        !filters.seasons.some((s) => p.bestFor.seasons.includes(s))
+      )
+        return false;
+      if (
+        filters.occasions.length &&
+        !filters.occasions.some((o) => p.bestFor.occasions.includes(o))
+      )
+        return false;
+      if (
+        filters.vibes.length &&
+        !filters.vibes.some((v) => p.vibe.includes(v))
+      )
+        return false;
+      if (filters.price.length && !filters.price.includes(p.priceCategory))
+        return false;
+      if (filters.longevity.length && !filters.longevity.includes(p.longevity))
+        return false;
+      if (filters.brands.length && !filters.brands.includes(p.brand))
+        return false;
       if (filters.notes.length) {
         const all = [...p.topNotes, ...p.middleNotes, ...p.baseNotes];
         if (!filters.notes.some((n) => all.includes(n))) return false;
@@ -280,12 +364,23 @@ export default function Discover() {
     });
 
     switch (sort) {
-      case "rating":  list = [...list].sort((a, b) => b.rating - a.rating); break;
-      case "votes":   list = [...list].sort((a, b) => b.totalVotes - a.totalVotes); break;
-      case "newest":  list = [...list].sort((a, b) => b.launchYear - a.launchYear); break;
-      case "oldest":  list = [...list].sort((a, b) => a.launchYear - b.launchYear); break;
-      case "name":    list = [...list].sort((a, b) => a.name.localeCompare(b.name)); break;
-      default: break;
+      case "rating":
+        list = [...list].sort((a, b) => b.rating - a.rating);
+        break;
+      case "votes":
+        list = [...list].sort((a, b) => b.totalVotes - a.totalVotes);
+        break;
+      case "newest":
+        list = [...list].sort((a, b) => b.launchYear - a.launchYear);
+        break;
+      case "oldest":
+        list = [...list].sort((a, b) => a.launchYear - b.launchYear);
+        break;
+      case "name":
+        list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      default:
+        break;
     }
     return list;
   }, [search, filters, sort, perfumes]);
@@ -293,7 +388,10 @@ export default function Discover() {
   const hasFilters = activeChips.length > 0 || search;
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+    <div
+      className="min-h-screen bg-zinc-950 text-white"
+      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
         .font-sans { font-family: 'DM Sans', sans-serif; }
@@ -306,7 +404,9 @@ export default function Discover() {
         <div className="px-6 md:px-10 py-4 flex items-center gap-4">
           <a href="/" className="flex items-center gap-2 shrink-0">
             <Droplets size={16} className="text-amber-400" />
-            <span className="text-base tracking-widest text-white font-light">SCENTAI</span>
+            <span className="text-base tracking-widest text-white font-light">
+              SCENTAI
+            </span>
           </a>
           <div className="h-5 w-px bg-zinc-800 shrink-0" />
           <div className="flex-1 flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 focus-within:border-amber-600/50 transition-all">
@@ -319,7 +419,10 @@ export default function Discover() {
               className="flex-1 bg-transparent text-sm text-white placeholder-zinc-600 outline-none font-sans"
             />
             {search && (
-              <button onClick={() => setSearch("")} className="text-zinc-600 hover:text-zinc-400">
+              <button
+                onClick={() => setSearch("")}
+                className="text-zinc-600 hover:text-zinc-400"
+              >
                 <X size={12} />
               </button>
             )}
@@ -331,20 +434,34 @@ export default function Discover() {
               className="appearance-none pl-3 pr-8 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-400 text-xs font-sans outline-none cursor-pointer hover:border-zinc-700 transition-colors"
             >
               {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
               ))}
             </select>
-            <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
+            <ChevronDown
+              size={12}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none"
+            />
           </div>
           <div className="flex items-center gap-1 p-1 rounded-xl bg-zinc-900 border border-zinc-800 shrink-0">
-            <button onClick={() => setView("grid")} className={`p-1.5 rounded-lg transition-all ${view === "grid" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:text-zinc-400"}`}>
+            <button
+              onClick={() => setView("grid")}
+              className={`p-1.5 rounded-lg transition-all ${view === "grid" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:text-zinc-400"}`}
+            >
               <Grid3X3 size={13} />
             </button>
-            <button onClick={() => setView("list")} className={`p-1.5 rounded-lg transition-all ${view === "list" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:text-zinc-400"}`}>
+            <button
+              onClick={() => setView("list")}
+              className={`p-1.5 rounded-lg transition-all ${view === "list" ? "bg-zinc-700 text-white" : "text-zinc-600 hover:text-zinc-400"}`}
+            >
               <List size={13} />
             </button>
           </div>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="shrink-0 p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600 transition-all md:hidden">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="shrink-0 p-2 rounded-xl border border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600 transition-all md:hidden"
+          >
             <SlidersHorizontal size={14} />
           </button>
         </div>
@@ -357,11 +474,20 @@ export default function Discover() {
               exit={{ height: 0, opacity: 0 }}
               className="px-6 md:px-10 pb-3 flex items-center gap-2 overflow-x-auto"
             >
-              <span className="font-sans text-[10px] text-zinc-600 uppercase tracking-widest shrink-0">Active:</span>
+              <span className="font-sans text-[10px] text-zinc-600 uppercase tracking-widest shrink-0">
+                Active:
+              </span>
               {activeChips.map((chip) => (
-                <FilterChip key={`${chip.key}-${chip.val}`} label={chip.label} onRemove={() => removeChip(chip.key, chip.val)} />
+                <FilterChip
+                  key={`${chip.key}-${chip.val}`}
+                  label={chip.label}
+                  onRemove={() => removeChip(chip.key, chip.val)}
+                />
               ))}
-              <button onClick={resetFilters} className="font-sans text-[10px] text-red-400 border border-red-900/40 px-2.5 py-1 rounded-full hover:bg-red-900/20 transition-colors shrink-0">
+              <button
+                onClick={resetFilters}
+                className="font-sans text-[10px] text-red-400 border border-red-900/40 px-2.5 py-1 rounded-full hover:bg-red-900/20 transition-colors shrink-0"
+              >
                 Clear all
               </button>
             </motion.div>
@@ -394,7 +520,11 @@ export default function Discover() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-light">
-                {search ? `"${search}"` : hasFilters ? "Filtered Results" : "All Fragrances"}
+                {search
+                  ? `"${search}"`
+                  : hasFilters
+                    ? "Filtered Results"
+                    : "All Fragrances"}
               </h1>
               <p className="font-sans text-sm text-zinc-500 mt-1">
                 {results.length} perfume{results.length !== 1 ? "s" : ""}
@@ -419,18 +549,39 @@ export default function Discover() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className={view === "grid" ? "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" : "flex flex-col divide-y divide-zinc-900"}
+                className={
+                  view === "grid"
+                    ? "grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"
+                    : "flex flex-col divide-y divide-zinc-900"
+                }
               >
                 {results.map((p, i) => (
-                  <PerfumeCard key={p.id} perfume={p} variant={view === "list" ? "list" : "default"} index={i} onClick={() => navigate(`/perfume/${p.id}`)} />
+                  <PerfumeCard
+                    key={p.id}
+                    perfume={p}
+                    variant={view === "list" ? "list" : "default"}
+                    index={i}
+                    onClick={() => navigate(`/perfume/${p.id}`)}
+                  />
                 ))}
               </motion.div>
             ) : (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-center justify-center py-32 text-center">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex flex-col items-center justify-center py-32 text-center"
+              >
                 <Droplets size={48} className="text-zinc-800 mb-4" />
-                <h3 className="text-2xl font-light text-zinc-500 mb-2">No fragrances found</h3>
-                <p className="font-sans text-sm text-zinc-600 mb-6">Try adjusting your filters or search query</p>
-                <button onClick={resetFilters} className="px-6 py-2 rounded-xl border border-zinc-700 text-zinc-400 font-sans text-sm hover:border-zinc-500 hover:text-zinc-200 transition-all">
+                <h3 className="text-2xl font-light text-zinc-500 mb-2">
+                  No fragrances found
+                </h3>
+                <p className="font-sans text-sm text-zinc-600 mb-6">
+                  Try adjusting your filters or search query
+                </p>
+                <button
+                  onClick={resetFilters}
+                  className="px-6 py-2 rounded-xl border border-zinc-700 text-zinc-400 font-sans text-sm hover:border-zinc-500 hover:text-zinc-200 transition-all"
+                >
                   Clear all filters
                 </button>
               </motion.div>
@@ -449,10 +600,17 @@ export default function Discover() {
           >
             <Sparkles size={20} className="text-amber-400 shrink-0" />
             <div className="flex-1">
-              <p className="font-sans text-sm text-zinc-300">Not finding what you're looking for?</p>
-              <p className="font-sans text-xs text-zinc-500 mt-0.5">Let AI suggest perfumes based on your preferences.</p>
+              <p className="font-sans text-sm text-zinc-300">
+                Not finding what you're looking for?
+              </p>
+              <p className="font-sans text-xs text-zinc-500 mt-0.5">
+                Let AI suggest perfumes based on your preferences.
+              </p>
             </div>
-            <button className="px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-sans text-sm hover:bg-amber-500/25 transition-colors shrink-0">
+            <button
+              onClick={() => navigate("/smart-search")}
+              className="px-4 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-sans text-sm hover:bg-amber-500/25 transition-colors shrink-0"
+            >
               Ask AI
             </button>
           </motion.div>

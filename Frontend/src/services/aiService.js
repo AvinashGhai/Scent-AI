@@ -1,5 +1,5 @@
 // src/services/aiService.js
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 export async function chatWithAssistant(message, history = [], perfumeData = []) {
   const res = await fetch(`${BACKEND_URL}/api/ai/chat`, {
@@ -32,4 +32,15 @@ export async function suggestNotes(note, layer, currentNotes = {}) {
   if (!res.ok) throw new Error("Suggest failed");
   const data = await res.json();
   return data.suggestions ?? [];
+}
+
+export async function smartRecommend(query, limit = 5) {
+  const res = await fetch(`${BACKEND_URL}/api/perfumes/smart-recommend`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query, limit }),
+  });
+  if (!res.ok) throw new Error("Smart recommend failed");
+  const data = await res.json();
+  return data.results ?? [];
 }
