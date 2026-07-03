@@ -2,6 +2,7 @@ const Perfume = require("../models/Perfume");
 const { getEmbedding } = require("../services/embeddingService");
 const { findSimilarPerfumes } = require("../services/vectorSearch");
 const { explainRecommendations, comparePerfumes } = require("../services/ragService");
+const { extractFilters } = require("../utils/filterExtractor");
 
 exports.getAll = async (req, res) => {
   try {
@@ -43,7 +44,8 @@ exports.semanticSearch = async (req, res) => {
       return res.status(400).json({ error: "Query text is required" });
     }
     const queryEmbedding = await getEmbedding(query);
-    const results = await findSimilarPerfumes(queryEmbedding, limit || 5);
+    const filters = extractFilters(query);
+    const results = await findSimilarPerfumes(queryEmbedding, limit || 5, filters);
     res.status(200).json({
       query,
       count: results.length,
@@ -62,7 +64,8 @@ exports.smartRecommend = async (req, res) => {
       return res.status(400).json({ error: "Query text is required" });
     }
     const queryEmbedding = await getEmbedding(query);
-    const perfumes = await findSimilarPerfumes(queryEmbedding, limit || 5);
+    const filters = extractFilters(query);
+    const perfumes = await findSimilarPerfumes(queryEmbedding, limit || 5, filters);
     const explanations = await explainRecommendations(query, perfumes);
     const merged = perfumes.map((p) => {
       const match = explanations.find(
