@@ -1,7 +1,7 @@
 const Perfume = require("../models/Perfume");
 const { getEmbedding } = require("../services/embeddingService");
 const { findSimilarPerfumes } = require("../services/vectorSearch");
-const { explainRecommendations } = require("../services/ragService");
+const { explainRecommendations, comparePerfumes } = require("../services/ragService");
 
 exports.getAll = async (req, res) => {
   try {
@@ -11,7 +11,6 @@ exports.getAll = async (req, res) => {
     if (season) filter["bestFor.seasons"] = season;
     if (occasion) filter["bestFor.occasions"] = occasion;
     if (priceCategory) filter.priceCategory = priceCategory;
-
     const perfumes = await Perfume.find(filter);
     res.json(perfumes);
   } catch (err) {
@@ -23,7 +22,6 @@ exports.search = async (req, res) => {
   try {
     const { q } = req.query;
     if (!q) return res.status(400).json({ error: "Query is required" });
-
     const perfumes = await Perfume.find({
       $or: [
         { name: { $regex: q, $options: "i" } },
@@ -41,14 +39,11 @@ exports.search = async (req, res) => {
 exports.semanticSearch = async (req, res) => {
   try {
     const { query, limit } = req.body;
-
     if (!query || typeof query !== "string" || !query.trim()) {
       return res.status(400).json({ error: "Query text is required" });
     }
-
     const queryEmbedding = await getEmbedding(query);
     const results = await findSimilarPerfumes(queryEmbedding, limit || 5);
-
     res.status(200).json({
       query,
       count: results.length,
@@ -63,22 +58,22 @@ exports.semanticSearch = async (req, res) => {
 exports.smartRecommend = async (req, res) => {
   try {
     const { query, limit } = req.body;
-
     if (!query || typeof query !== "string" || !query.trim()) {
       return res.status(400).json({ error: "Query text is required" });
     }
-
     const queryEmbedding = await getEmbedding(query);
     const perfumes = await findSimilarPerfumes(queryEmbedding, limit || 5);
     const explanations = await explainRecommendations(query, perfumes);
-
     const merged = perfumes.map((p) => {
       const match = explanations.find(
         (e) => e.name === p.name || e.name.includes(p.name) || p.name.includes(e.name)
       );
-      return { ...p, explanation: match ? match.explanation : null };
+      return {
+        ...p,
+        explanation: match ? match.explanation : null,
+        downside: match ? match.downside : null,
+      };
     });
-
     res.status(200).json({
       query,
       count: merged.length,
@@ -87,5 +82,30 @@ exports.smartRecommend = async (req, res) => {
   } catch (err) {
     console.error("Smart recommend error:", err.message);
     res.status(500).json({ error: "Smart recommendation failed" });
+  }
+};
+
+exports.compare = async (req, res) => {
+  try {
+    const { idA, idB } = req.body;
+    if (!idA || !idB) {
+      return res.status(400).json({ error: "Both idA and idB are required" });
+    }
+    const [perfumeA, perfumeB] = await Promise.all([
+      Perfume.findOne({ id: idA }),
+      Perfume.findOne({ id: idB }),
+    ]);
+    if (!perfumeA || !perfumeB) {
+      return res.status(404).json({ error: "One or both perfumes not found" });
+    }
+    const comparison = await comparePerfumes(perfumeA, perfumeB);
+    res.status(200).json({
+      perfumeA: { id: perfumeA.id, name: perfumeA.name, brand: perfumeA.brand },
+      perfumeB: { id: perfumeB.id, name: perfumeB.name, brand: perfumeB.brand },
+      comparison,
+    });
+  } catch (err) {
+    console.error("Compare error:", err.message);
+    res.status(500).json({ error: "Comparison failed" });
   }
 };
