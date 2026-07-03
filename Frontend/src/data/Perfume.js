@@ -1,3 +1,5 @@
+import { expandedPerfumes } from "./expandedPerfumes";
+
 
 export const perfumes = [
   {
@@ -933,4 +935,5 @@ export const priceCategories = [
   "budget", "affordable", "designer", "designer-premium", "luxury", "niche-luxury",
 ];
 
-export default perfumes;
+export const allPerfumes = [...perfumes, ...expandedPerfumes];
+export default allPerfumes;

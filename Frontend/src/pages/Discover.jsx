@@ -279,13 +279,6 @@ export default function Discover() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const navigate = useNavigate();
 
-  if (loading)
-    return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500 font-sans">
-        Loading fragrances...
-      </div>
-    );
-
   function updateFilter(key, val) {
     setFilters((prev) => ({ ...prev, [key]: val }));
   }
@@ -322,7 +315,7 @@ export default function Discover() {
   }
 
   const results = useMemo(() => {
-    let list = perfumes.filter((p) => {
+    let list = (perfumes || []).filter((p) => {
       if (search) {
         const q = search.toLowerCase();
         const inName = p.name.toLowerCase().includes(q);
@@ -386,6 +379,13 @@ export default function Discover() {
   }, [search, filters, sort, perfumes]);
 
   const hasFilters = activeChips.length > 0 || search;
+
+  if (loading)
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-500 font-sans">
+        Loading fragrances...
+      </div>
+    );
 
   return (
     <div
@@ -526,11 +526,6 @@ export default function Discover() {
                     ? "Filtered Results"
                     : "All Fragrances"}
               </h1>
-              <p className="font-sans text-sm text-zinc-500 mt-1">
-                {results.length} perfume{results.length !== 1 ? "s" : ""}
-                {sort === "rating" && " · sorted by rating"}
-                {sort === "votes" && " · sorted by popularity"}
-              </p>
             </div>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}

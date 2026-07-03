@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { expandedPerfumes } = require("../data/expandedPerfumes");
 require("dotenv").config();
 const Perfume = require("../models/Perfume");
 
@@ -44,8 +45,9 @@ const perfumes = [
 const seed = async () => {
   await mongoose.connect(process.env.MONGO_URI);
   await Perfume.deleteMany({});
-  await Perfume.insertMany(perfumes);
-  console.log("✅ 36 perfumes seeded successfully");
+  const allPerfumes = [...perfumes, ...expandedPerfumes];
+  await Perfume.insertMany(allPerfumes);
+  console.log(`✅ ${allPerfumes.length} perfumes seeded successfully`);
   process.exit(0);
 };
 
