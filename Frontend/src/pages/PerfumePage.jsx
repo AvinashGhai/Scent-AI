@@ -7,7 +7,7 @@ import {
   Clock, Volume2, ChevronRight
 } from "lucide-react";
 import PerfumeCard from "../components/perfume/PerfumeCard";
-import { perfumes } from "../data/Perfume";
+import { useApp } from "../context/AppContext";
 import { getSimilarPerfumes } from "../services/recommendationEngine"
 
 const SEASON_EMOJI = { spring: "🌸", summer: "☀️", fall: "🍂", winter: "❄️" };
@@ -187,15 +187,25 @@ function AccordBars({ accords }) {
 export default function PerfumePage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { perfumes, loading } = useApp();
   const [wishlisted, setWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState("notes");
   const [imageLoaded, setImageLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const perfume = perfumes.find((p) => p.id === Number(id));
-  const similar = getSimilarPerfumes(perfume, 4);
+  const perfume = (perfumes || []).find((p) => p.id === Number(id));
+  const similar = perfume ? getSimilarPerfumes(perfume, 4) : [];
 
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-4">
+        <Droplets size={40} className="text-zinc-700 animate-pulse" />
+        <p className="font-sans text-zinc-500">Loading perfume...</p>
+      </div>
+    );
+  }
 
   if (!perfume) {
     return (
