@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Search, Sparkles, Wind, Flame, Leaf, Star, ChevronRight, Droplets } from "lucide-react";
-import { perfumes, moods, seasons } from "../data/Perfume";
+import { moods, seasons } from "../data/Perfume"
+import { useApp } from "../context/AppContext";
 import { getTrending, getByMoodAndSeason } from "../services/recommendationEngine";
 import PerfumeCard from "../components/perfume/PerfumeCard";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +39,7 @@ function MoodChip({ mood, active, onClick }) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { perfumes, loading } = useApp();
   const [search, setSearch] = useState("");
   const [activeMood, setActiveMood] = useState(null);
   const [activeSeason, setActiveSeason] = useState(null);
@@ -48,12 +50,12 @@ export default function Home() {
   const heroY = useTransform(scrollY, [0, 300], [0, -60]);
 
   // Data
-  const trending = getTrending(1000, 6);
+  const trending = getTrending(1000, 6, perfumes);
   const currentSeason = activeSeason || "winter";
-  const seasonalPicks = getByMoodAndSeason([], [currentSeason], 4);
+  const seasonalPicks = getByMoodAndSeason([], [currentSeason], 4, perfumes);
 
   // Filtered results
-  const filtered = perfumes.filter((p) => {
+  const filtered = (perfumes || []).filter((p) => {
     const matchSearch =
       !search ||
       p.name.toLowerCase().includes(search.toLowerCase()) ||

@@ -194,7 +194,7 @@ export default function PerfumePage() {
   const [copied, setCopied] = useState(false);
 
   const perfume = (perfumes || []).find((p) => p.id === Number(id));
-  const similar = perfume ? getSimilarPerfumes(perfume, 4) : [];
+  const similar = perfume ? getSimilarPerfumes(perfume, 4, perfumes) : [];
 
   useEffect(() => { window.scrollTo(0, 0); }, [id]);
 

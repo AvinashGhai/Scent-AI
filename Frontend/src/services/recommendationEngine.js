@@ -1,4 +1,3 @@
-
 import { perfumes } from "../data/Perfume";
 
 // ── WEIGHTS ──────────────────────────────────────────────────────────
@@ -192,7 +191,7 @@ export function getRecommendations(userNotes = {}, filters = {}, limit = 5) {
  * @param {Object} perfume   A perfume object from your dataset
  * @param {number} limit     How many to return (default 4)
  */
-export function getSimilarPerfumes(perfume, limit = 4) {
+export function getSimilarPerfumes(perfume, limit = 4, list = perfumes) {
   if (!perfume) return [];
 
   const userNotes = {
@@ -201,7 +200,7 @@ export function getSimilarPerfumes(perfume, limit = 4) {
     base:   perfume.baseNotes,
   };
 
-  return perfumes
+  return (list || [])
     .filter((p) => p.id !== perfume.id)
     .map((p) => {
       const { rawScore, matchPercent, breakdown } = scorePerfume(p, userNotes, {
@@ -230,8 +229,8 @@ export function getSimilarPerfumes(perfume, limit = 4) {
  * @param {string[]} seasons   e.g. ["summer"]
  * @param {number}   limit
  */
-export function getByMoodAndSeason(vibes = [], seasons = [], limit = 6) {
-  return perfumes
+export function getByMoodAndSeason(vibes = [], seasons = [], limit = 6, list = perfumes) {
+  return (list || [])
     .filter((p) => {
       const matchVibe   = vibes.length === 0   || vibes.some((v) => p.vibe.includes(v));
       const matchSeason = seasons.length === 0 || seasons.some((s) => p.bestFor.seasons.includes(s));
@@ -248,8 +247,8 @@ export function getByMoodAndSeason(vibes = [], seasons = [], limit = 6) {
  * @param {number} minVotes  Minimum votes threshold (default 1000)
  * @param {number} limit
  */
-export function getTrending(minVotes = 1000, limit = 6) {
-  return [...perfumes]
+export function getTrending(minVotes = 1000, limit = 6, list = perfumes) {
+  return [...(list || [])]
     .filter((p) => p.totalVotes >= minVotes)
     .sort((a, b) => b.rating - a.rating)
     .slice(0, limit);

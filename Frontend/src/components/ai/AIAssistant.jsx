@@ -159,7 +159,7 @@ export function AIAssistantPage() {
           </div>
           <div>
             <p className="text-base font-light leading-none">AI Assistant</p>
-            <p className="font-sans text-[10px] text-zinc-600 mt-0.5">Powered by Gemini</p>
+            <p className="font-sans text-[10px] text-zinc-600 mt-0.5">Powered by Groq</p>
           </div>
         </div>
         <button
@@ -263,7 +263,7 @@ export function AIAssistantPage() {
           </button>
         </div>
         <p className="font-sans text-[10px] text-zinc-700 text-center mt-2">
-          Only recommends from ScentAI's curated database · Powered by Gemini
+          Only recommends from ScentAI's curated database · Powered by Groq
         </p>
       </div>
     </div>
@@ -351,7 +351,7 @@ export function AIAssistantWidget() {
                   <Sparkles size={11} className="text-amber-400" />
                 </div>
                 <span className="text-sm text-white font-medium">ScentAI</span>
-                <span className="font-sans text-[10px] text-zinc-600">· Gemini</span>
+                <span className="font-sans text-[10px] text-zinc-600">· Groq</span>
               </div>
               <button onClick={() => setOpen(false)} className="text-zinc-600 hover:text-zinc-400 transition-colors">
                 <X size={13} />
