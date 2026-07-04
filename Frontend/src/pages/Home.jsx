@@ -118,6 +118,9 @@ export default function Home() {
             <button onClick={() => navigate("/mix")} className="hover:text-zinc-200 transition-colors">
               Mix Scents
             </button>
+            <button onClick={() => navigate("/smart-search")} className="hover:text-zinc-200 transition-colors">
+              Smart Search
+            </button>
             <button
               onClick={() => navigate("/assistant")}
               className="px-4 py-1.5 rounded-full border border-zinc-700 text-zinc-300 hover:border-amber-600/50 hover:text-amber-300 transition-all"
@@ -197,6 +200,13 @@ export default function Home() {
                 Search
               </button>
             </div>
+            <button
+              onClick={() => navigate("/smart-search")}
+              className="flex items-center gap-1.5 mx-auto mt-3 font-sans text-xs text-zinc-500 hover:text-amber-300 transition-colors"
+            >
+              <Sparkles size={12} className="text-amber-500/70" />
+              Or ask AI to find it for you
+            </button>
           </motion.div>
 
           {/* Quick mood pills */}

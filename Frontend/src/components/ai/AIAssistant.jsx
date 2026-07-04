@@ -107,7 +107,7 @@ export function AIAssistantPage() {
     setLoading(true);
 
     try {
-      const reply = await chatWithAssistant(msg, history, perfumes);
+      const reply = await chatWithAssistant(msg, history, perfumes.slice(0, 20));
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
       setError("Something went wrong. Make sure your backend is running on port 5000.");
@@ -300,7 +300,7 @@ export function AIAssistantWidget() {
     setLoading(true);
 
     try {
-      const reply = await chatWithAssistant(msg, history, perfumes);
+      const reply = await chatWithAssistant(msg, history, perfumes.slice(0, 20));
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch {
       setMessages((prev) => [
