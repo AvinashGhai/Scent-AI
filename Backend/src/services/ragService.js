@@ -27,7 +27,7 @@ For each perfume, write:
 Only use facts given above, do not invent notes or details. Return a JSON object with a single field "results", which is an array of objects each with "name", "explanation", and "downside". The "name" field must be exactly the perfume name only, exactly as written above, without the brand.`;
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.4,
     response_format: { type: "json_object" },
@@ -72,7 +72,7 @@ Return a JSON object with these fields, all values must be valid JSON strings wr
 Only use facts given above, do not invent details.`;
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.4,
     response_format: { type: "json_object" },
